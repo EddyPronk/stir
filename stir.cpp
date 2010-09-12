@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <editline/readline.h>
 #include <curl/curl.h>
 #include <string>
 #include <iostream>
@@ -28,15 +28,17 @@ int main(int argc, char** argv)
 
 	std::string base_url = argv[1];
 	std::string line;
-	do
+
+	while (true)
 	{
-		std::cerr << ">>> ";
-		std::cin >> line;
-		std::cout << line << std::endl;
+		char* raw_line = readline (">>> ");
+		if (!raw_line)
+			break;
+		std::string line(raw_line);
+		if(line.size())
+			std::cout << line << std::endl;
 		fetch(base_url, line);
-		std::cerr << std::endl;
 	}
-	while(line != "");
 
 	return 0;
 }
