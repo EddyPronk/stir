@@ -1,0 +1,7 @@
+The Redline Smalltalk Interractive shell/command line.
+======================================================
+
+To build:
+  sudo apt-get install libeditline-dev
+  make
+
