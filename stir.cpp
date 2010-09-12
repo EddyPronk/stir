@@ -10,8 +10,10 @@ void fetch(const std::string& base_url, const std::string& arg)
 	curl = curl_easy_init();
 	if(curl)
 	{
-		std::string url = base_url + "?" + arg;
+		std::string url = base_url + "/evaluate";
 		std::cout << "fetching " << url << std::endl;
+
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, arg.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
