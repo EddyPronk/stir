@@ -40,6 +40,7 @@ int main(int argc, char** argv)
 		if(line.size())
 			std::cout << line << std::endl;
 		fetch(base_url, line);
+		add_history(raw_line);
 	}
 
 	return 0;
