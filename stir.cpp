@@ -68,15 +68,22 @@ int main(int argc, char** argv)
 	http_client http;
 	std::string session_id = http.get(url);
 
+	std::string lines;
 	while (true)
 	{
-		char* raw_line = readline (">>> ");
+		char* raw_line = readline ("~ ");
 		if (!raw_line)
 			break;
 		string line(raw_line);
-		string url = base_url + "/evaluate?session=" + session_id;
-		string response = http.post(url, line);
-		cout << response << endl;
+		lines += line + "\n";
+		if (line.length() >= 2)
+			if (line.substr(line.length() - 2, 2) == "..")
+			{
+				string url = base_url + "/evaluate?session=" + session_id;
+				string response = http.post(url, lines);
+				cout << response << endl;
+				lines = "";
+			}
 		add_history(raw_line);
 	}
 
