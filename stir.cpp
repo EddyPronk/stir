@@ -5,32 +5,23 @@
 
 std::string start_session(const std::string& base_url)
 { 
-	CURL *curl;
-	CURLcode res;
-	curl = curl_easy_init();
+	CURL* curl = curl_easy_init();
 	if(curl)
 	{
 		std::string url = base_url + "/start_session";
 		std::cout << "fetching " << url << std::endl;
 
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-		res = curl_easy_perform(curl);
+		CURLcode res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
 	return "";
 }
 
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
 struct Buffer
 {
 	std::string data;
-	int cookie;
 	Buffer()
-		: cookie(25)
 	{
 	}
 	size_t callback(void* ptr, size_t size, size_t nmemb)
@@ -49,9 +40,7 @@ size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 
 void fetch(const std::string& base_url, const std::string& arg)
 { 
-	CURL *curl;
-	curl = curl_easy_init();
-	struct MemoryStruct chunk;
+	CURL* curl = curl_easy_init();
 	Buffer buf;
 	if(curl)
 	{
