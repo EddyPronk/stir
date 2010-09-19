@@ -51,7 +51,9 @@ struct http_client
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
 
 		curl_slist* chunk = NULL;
-		chunk = curl_slist_append(chunk, ("Session-Id: " + session_id).c_str());
+		chunk = curl_slist_append(chunk, ("User-Agent: stir/0.1"));
+		if(session_id.length())
+			chunk = curl_slist_append(chunk, ("Session-Id: " + session_id).c_str());
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 
 		CURLcode res = curl_easy_perform(curl);
