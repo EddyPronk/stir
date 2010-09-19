@@ -51,6 +51,15 @@ struct http_client
 
 };
 
+bool ends_with(const std::string& s, const std::string t)
+{
+	string::size_type len = t.length();
+	if (s.length() >= len)
+		if (s.substr(s.length() - len, len) == t)
+			return true;
+	return false;
+}
+
 int main(int argc, char** argv)
 {
 	if (argc == 1)
@@ -75,15 +84,17 @@ int main(int argc, char** argv)
 		if (!raw_line)
 			break;
 		string line(raw_line);
-		lines += line + "\n";
-		if (line.length() >= 2)
-			if (line.substr(line.length() - 2, 2) == "..")
-			{
-				string url = base_url + "/evaluate?session=" + session_id;
-				string response = http.post(url, lines);
-				cout << response << endl;
-				lines = "";
-			}
+		if (ends_with(line, ".."))
+		{
+			lines += line.substr(0, line.length() - 2) + "\n";
+			string url = base_url + "/evaluate?session=" + session_id;
+			string response = http.post(url, lines);
+			cout << response << endl;
+			lines = "";
+		}
+		else
+			lines += line + "\n";
+
 		add_history(raw_line);
 	}
 
