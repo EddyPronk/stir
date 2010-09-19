@@ -24,20 +24,35 @@ size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 struct http_client
 {
 	CURL* curl;
-	http_client()
-		: curl(curl_easy_init()) {}
+	std::string base_url;
+	std::string session_id;
+	http_client(const std::string& url)
+		: curl(curl_easy_init())
+		, base_url(url) {}
 	~http_client()
 	{
 		curl_easy_cleanup(curl);
 	}
+	void start_session()
+	{
+		session_id = get(base_url + "/start_session");
+	}
+	void end_session()
+	{
+		get(base_url + "/end_session");
+	}
 	std::string get(const std::string& url)
 	{
-		Buffer buf;
 		std::cout << "fetching " << url << std::endl;
 
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		Buffer buf;
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
+
+		curl_slist* chunk = NULL;
+		chunk = curl_slist_append(chunk, ("Session-Id: " + session_id).c_str());
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 
 		CURLcode res = curl_easy_perform(curl);
 
@@ -73,9 +88,8 @@ int main(int argc, char** argv)
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	std::string url = base_url + "/start_session";
-	http_client http;
-	std::string session_id = http.get(url);
+	http_client http(base_url);
+	http.start_session();
 
 	std::string lines;
 	while (true)
@@ -87,7 +101,7 @@ int main(int argc, char** argv)
 		if (ends_with(line, ".."))
 		{
 			lines += line.substr(0, line.length() - 2) + "\n";
-			string url = base_url + "/evaluate?session=" + session_id;
+			string url = base_url + "/evaluate";
 			string response = http.post(url, lines);
 			cout << response << endl;
 			lines = "";
@@ -98,7 +112,7 @@ int main(int argc, char** argv)
 		add_history(raw_line);
 	}
 
-	http.get(base_url + "/end_session?session=" + session_id);
+	http.end_session();
 	std::cerr << std::endl;
 	std::cerr << "exiting" << std::endl;
 
